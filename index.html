@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GKX | Goal eXpress</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gkx: {
+                            black: '#0a0a0a',
+                            dark: '#121212',
+                            green: '#39ff14',
+                            greenDark: '#2db30f',
+                            gray: '#2a2a2a'
+                        }
+                    },
+                    animation: {
+                        'ticker': 'ticker 35s linear infinite',
+                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                        'heart': 'heart 0.3s ease-in-out',
+                        'gradient-shift': 'gradient-shift 8s ease infinite',
+                        'slide-in': 'slide-in 0.3s ease-out',
+                        'bounce-in': 'bounce-in 0.5s ease-out'
+                    },
+                    keyframes: {
+                        ticker: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' }
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { 
+                                textShadow: '0 0 10px rgba(57, 255, 20, 0.5), 0 0 20px rgba(57, 255, 20, 0.3)',
+                                opacity: '1'
+                            },
+                            '50%': { 
+                                textShadow: '0 0 20px rgba(57, 255, 20, 0.8), 0 0 30px rgba(57, 255, 20, 0.5)',
+                                opacity: '0.8'
+                            }
+                        },
+                        heart: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.3)' }
+                        },
+                        'gradient-shift': {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' }
+                        },
+                        'slide-in': {
+                            '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        'bounce-in': {
+                            '0%': { opacity: '0', transform: 'scale(0.8)' },
+                            '50%': { transform: 'scale(1.05)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body { 
+            background-color: #0a0a0a; 
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .neon-text { text-shadow: 0 0 10px rgba(57, 255, 20, 0.5); }
+        .neon-border { box-shadow: 0 0 5px rgba(57, 255, 20, 0.2); }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #121212; }
+        ::-webkit-scrollbar-thumb { background: #39ff14; border-radius: 4px; }
+        
+        .modal { backdrop-filter: blur(5px); }
+        .admin-row:hover { background-color: rgba(57, 255, 20, 0.05); }
+        
+        /* Бегущая строка */
+        .ticker-wrap {
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            background: linear-gradient(90deg, #0a0a0a 0%, #0f0f0f 10%, #121212 50%, #0f0f0f 90%, #0a0a0a 100%);
+            border-bottom: 2px solid rgba(57, 255, 20, 0.3);
+            box-shadow: 0 5px 20px rgba(57, 255, 20, 0.1);
+            height: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ticker-wrap::before,
+        .ticker-wrap::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 100px;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .ticker-wrap::before {
+            left: 0;
+            background: linear-gradient(90deg, #0a0a0a 0%, transparent 100%);
+        }
+
+        .ticker-wrap::after {
+            right: 0;
+            background: linear-gradient(90deg, transparent 0%, #0a0a0a 100%);
+        }
+
+        .ticker-track {
+            display: flex;
+            align-items: center;
+            animation: ticker 35s linear infinite;
+        }
+
+        .ticker-track:hover {
+            animation-play-state: paused;
+        }
+
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 3rem;
+            color: #39ff14;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 14px;
+            white-space: nowrap;
+            animation: pulse-glow 2s ease-in-out infinite;
+            text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+            position: relative;
+        }
+
+        .ticker-item::before {
+            content: '⚽';
+            margin-right: 12px;
+            font-size: 16px;
+            animation: pulse-glow 1s ease-in-out infinite;
+        }
+
+        .ticker-item::after {
+            content: '⚽';
+            margin-left: 12px;
+            font-size: 16px;
+            animation: pulse-glow 1s ease-in-out infinite;
+            animation-delay: 0.5s;
+        }
+
+        .ticker-separator {
+            color: rgba(57, 255, 20, 0.3);
+            font-size: 20px;
+            margin: 0 1rem;
+        }
+
+        /* Градиентный фон HERO */
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.9) 0%, rgba(18, 18, 18, 0.8) 25%, rgba(57, 255, 20, 0.15) 50%, rgba(18, 18, 18, 0.8) 75%, rgba(10, 10, 10, 0.95) 100%);
+            background-size: 200% 200%;
+            animation: gradient-shift 8s ease infinite;
+        }
+
+        .hero-gradient-overlay {
+            background: linear-gradient(to bottom, transparent 0%, rgba(10, 10, 10, 0.3) 50%, rgba(10, 10, 10, 1) 100%);
+        }
+
+        /* ГРАДИЕНТЫ ДЛЯ ЛИГ */
+        .league-bundesliga {
+            background: linear-gradient(135deg, rgba(220, 0, 0, 0.3) 0%, rgba(18, 18, 18, 0.8) 100%);
+            border-left: 3px solid #dc0000;
+        }
+
+        .league-rpl {
+            background: linear-gradient(135deg, rgba(0, 100, 255, 0.3) 0%, rgba(255, 0, 0, 0.2) 50%, rgba(18, 18, 18, 0.8) 100%);
+            border-left: 3px solid #0064ff;
+        }
+
+        .league-epl {
+            background: linear-gradient(135deg, rgba(0, 100, 255, 0.3) 0%, rgba(57, 255, 20, 0.2) 50%, rgba(18, 18, 18, 0.8) 100%);
+            border-left: 3px solid #0064ff;
+        }
+
+        .league-laliga {
+            background: linear-gradient(135deg, rgba(255, 140, 0, 0.3) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(18, 18, 18, 0.8) 100%);
+            border-left: 3px solid #ff8c00;
+        }
+
+        .league-seriea {
+            background: linear-gradient(135deg, rgba(0, 180, 220, 0.3) 0%, rgba(18, 18, 18, 0.8) 100%);
+            border-left: 3px solid #00b4dc;
+        }
+
+        .league-default {
+            background: linear-gradient(135deg, rgba(57, 255, 20, 0.15) 0%, rgba(18, 18, 18, 0.8) 100%);
+            border-left: 3px solid #39ff14;
+        }
+
+        /* Кнопка закрытия модального окна - УЛУЧШЕННАЯ */
+        .modal-close-btn {
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(57, 255, 20, 0.2) 0%, rgba(57, 255, 20, 0.1) 100%);
+            border: 2px solid rgba(57, 255, 20, 0.5);
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+        }
+
+        .modal-close-btn:hover {
+            background: linear-gradient(135deg, rgba(57, 255, 20, 0.4) 0%, rgba(57, 255, 20, 0.2) 100%);
+            border-color: #39ff14;
+            transform: rotate(90deg) scale(1.1);
+            box-shadow: 0 0 25px rgba(57, 255, 20, 0.6);
+        }
+
+        /* Большая кнопка ВЫЙТИ внизу */
+        .exit-button-large {
+            background: linear-gradient(135deg, #39ff14 0%, #2db30f 100%);
+            color: #0a0a0a;
+            border: 2px solid #39ff14;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .exit-button-large:hover {
+            background: linear-gradient(135deg, #2db30f 0%, #39ff14 100%);
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .exit-button-large:active {
+            transform: translateY(0);
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
+        }
+
+        /* Фильтр дат */
+        .date-filter-btn {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(57, 255, 20, 0.2);
+        }
+
+        .date-filter-btn:hover {
+            border-color: #39ff14;
+            background: rgba(57, 255, 20, 0.1);
+        }
+
+        .date-filter-btn.active {
+            background: #39ff14;
+            color: #0a0a0a;
+            border-color: #39ff14;
+            font-weight: 700;
+        }
+
+        /* Лайки */
+        .like-btn {
+            transition: all 0.2s ease;
+        }
+        .like-btn:hover {
+            transform: scale(1.1);
+        }
+        .like-btn.liked {
+            color: #ff4757;
+        }
+        .like-btn.liked svg {
+            animation: heart 0.3s ease-in-out;
+        }
+
+        /* Адаптация под мобильные устройства */
+        @media (max-width: 768px) {
+            .ticker-item {
+                padding: 0 1.5rem;
+                font-size: 12px;
+            }
+            
+            .ticker-item::before,
+            .ticker-item::after {
+                font-size: 14px;
+                margin: 0 8px;
+            }
+            
+            .hero-gradient {
+                height: 200px;
+            }
+            
+            h2.text-3xl {
+                font-size: 1.5rem;
+            }
+            
+            .modal-close-btn {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .exit-button-large {
+                padding: 16px 32px;
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ticker-wrap {
+                height: 40px;
+            }
+            
+            .ticker-item {
+                padding: 0 1rem;
+                font-size: 11px;
+            }
+            
+            .hero-gradient {
+                height: 180px;
+            }
+            
+            h2.text-3xl {
+                font-size: 1.25rem;
+            }
+            
+            .modal-close-btn {
+                width: 48px;
+                height: 48px;
+            }
+        }
+
+        /* Поворот экрана */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .hero-gradient {
+                height: 150px;
+            }
+            
+            .modal {
+                align-items: flex-start;
+                padding-top: 20px;
+            }
+        }
+
+        /* Предотвращение зума на iOS */
+        @supports (-webkit-touch-callout: none) {
+            input, select, textarea {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- БЕГУЩАЯ СТРОКА -->
+    <div class="ticker-wrap">
+        <div class="ticker-track">
+            <span class="ticker-item">GKX | Goal eXpress</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">Live Результаты Матчей</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">GKX | Goal eXpress</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">Последние Новости Футбола</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">GKX | Goal eXpress</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">Трансферы • Голы • Эмоции</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">GKX | Goal eXpress</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">Регистрируйся и Комментируй</span>
+            <span class="ticker-separator">◆</span>
+            <!-- Дубликат для бесшовной анимации -->
+            <span class="ticker-item">GKX | Goal eXpress</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">Live Результаты Матчей</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">GKX | Goal eXpress</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">Последние Новости Футбола</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">GKX | Goal eXpress</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">Трансферы • Голы • Эмоции</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">GKX | Goal eXpress</span>
+            <span class="ticker-separator">◆</span>
+            <span class="ticker-item">Регистрируйся и Комментируй</span>
+            <span class="ticker-separator">◆</span>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="border-b border-gkx-green/20 bg-gkx-dark sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="showSection('home')">
+                <div class="w-10 h-10 bg-gkx-green rounded flex items-center justify-center font-black text-gkx-black text-xl">G</div>
+                <h1 class="text-2xl font-black tracking-tighter text-white">GKX <span class="text-gkx-green neon-text">eXpress</span></h1>
+            </div>
+            <nav class="hidden md:flex gap-6 text-sm font-bold uppercase tracking-wide">
+                <a href="#" onclick="showSection('home')" class="hover:text-gkx-green transition">Главная</a>
+                <a href="#" onclick="showSection('matches')" class="hover:text-gkx-green transition">Матчи</a>
+                <a href="#" onclick="showSection('news')" class="hover:text-gkx-green transition">Новости</a>
+                <a href="#" id="admin-nav-link" onclick="checkAdminAccess()" class="text-gkx-green hover:text-white transition hidden">Админка</a>
+            </nav>
+            <div id="user-panel">
+                <button onclick="openModal('login')" class="bg-gkx-green text-gkx-black px-5 py-2 rounded font-bold hover:bg-white transition">Войти</button>
+            </div>
+        </div>
+        <!-- Мобильное меню -->
+        <div class="md:hidden border-t border-gray-800 px-4 py-2 flex gap-4 text-xs font-bold uppercase">
+            <a href="#" onclick="showSection('home')" class="text-gray-400 hover:text-gkx-green">Главная</a>
+            <a href="#" onclick="showSection('matches')" class="text-gray-400 hover:text-gkx-green">Матчи</a>
+            <a href="#" onclick="showSection('news')" class="text-gray-400 hover:text-gkx-green">Новости</a>
+            <a href="#" id="admin-nav-link-mobile" onclick="checkAdminAccess()" class="text-gkx-green hidden">Админка</a>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        
+        <!-- СЕКЦИЯ: ГЛАВНАЯ -->
+        <div id="section-home" class="space-y-12">
+            <div class="relative h-64 md:h-96 rounded-2xl overflow-hidden border border-gkx-green/30 hero-gradient">
+                <img src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55" class="w-full h-full object-cover opacity-40" alt="Football">
+                <div class="absolute inset-0 hero-gradient-overlay"></div>
+                <div class="absolute bottom-0 left-0 p-8 w-full">
+                    <span class="bg-gkx-green text-gkx-black text-xs font-bold px-3 py-1.5 rounded mb-3 inline-block neon-border">GKX</span>
+                    <h2 class="text-3xl md:text-5xl font-black mb-3 leading-tight">
+                        ДОБРО ПОЖАЛОВАТЬ В 
+                        <span class="text-gkx-green neon-text block mt-1">GOAL EXPRESS</span>
+                    </h2>
+                    <p class="text-gray-300 text-sm md:text-base max-w-xl">
+                        ⚽ Последние новости футбола • Live результаты • Статистика матчей • Комментарии фанатов
+                    </p>
+                </div>
+                <div class="absolute top-4 right-4 w-20 h-20 bg-gkx-green/10 rounded-full blur-xl"></div>
+                <div class="absolute bottom-20 left-10 w-32 h-32 bg-gkx-green/5 rounded-full blur-2xl"></div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-end mb-6 border-b border-gray-800 pb-2">
+                    <h3 class="text-2xl font-bold text-white">Последние новости</h3>
+                    <a href="#" onclick="showSection('news')" class="text-gkx-green text-sm hover:underline">Все новости →</a>
+                </div>
+                <div id="home-news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-end mb-6 border-b border-gray-800 pb-2">
+                    <h3 class="text-2xl font-bold text-white">Последние результаты</h3>
+                    <a href="#" onclick="showSection('matches')" class="text-gkx-green text-sm hover:underline">Все матчи →</a>
+                </div>
+                <div id="home-matches-list" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- СЕКЦИЯ: МАТЧИ С ФИЛЬТРОМ ПО ДАТАМ -->
+        <div id="section-matches" class="hidden space-y-6">
+            <h2 class="text-3xl font-black mb-6 border-l-4 border-gkx-green pl-4">Все матчи</h2>
+            
+            <!-- Фильтр по датам -->
+            <div class="bg-gkx-dark rounded-xl border border-gray-800 p-6">
+                <h3 class="text-lg font-bold text-gkx-green mb-4">📅 Выберите дату</h3>
+                <div id="date-filters" class="flex flex-wrap gap-2">
+                    <!-- Кнопки дат будут добавлены через JS -->
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-800">
+                    <p class="text-gray-400 text-sm">
+                        <span id="selected-date-label" class="text-gkx-green font-bold">Все даты</span>
+                        <span id="matches-on-date" class="ml-2 text-gray-500"></span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Список матчей -->
+            <div id="all-matches-grid" class="space-y-4"></div>
+        </div>
+
+        <!-- СЕКЦИЯ: НОВОСТИ -->
+        <div id="section-news" class="hidden space-y-6">
+            <h2 class="text-3xl font-black mb-6 border-l-4 border-gkx-green pl-4">Все новости</h2>
+            <div id="all-news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
+        <!-- СЕКЦИЯ: АДМИН ПАНЕЛЬ -->
+        <div id="section-admin" class="hidden space-y-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-black text-gkx-green">Панель управления</h2>
+                <button onclick="logout()" class="text-red-500 hover:text-red-400 text-sm font-bold">Выйти из админки</button>
+            </div>
+            
+            <div class="flex gap-4 border-b border-gray-800 mb-6 overflow-x-auto">
+                <button onclick="showAdminTab('matches')" class="admin-tab active pb-2 px-4 border-b-2 border-gkx-green text-gkx-green font-bold whitespace-nowrap">Матчи</button>
+                <button onclick="showAdminTab('news')" class="admin-tab pb-2 px-4 border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">Новости</button>
+                <button onclick="showAdminTab('comments')" class="admin-tab pb-2 px-4 border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">Комментарии</button>
+                <button onclick="showAdminTab('users')" class="admin-tab pb-2 px-4 border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">Пользователи</button>
+            </div>
+
+            <div id="admin-matches" class="admin-tab-content space-y-6">
+                <div class="bg-gkx-dark p-6 rounded-xl border border-gray-800">
+                    <h3 class="text-xl font-bold mb-4 text-gkx-green">Добавить матч</h3>
+                    <form id="add-match-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="m-league" placeholder="Лига" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                        <input type="datetime-local" id="m-date" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                        <input type="text" id="m-home" placeholder="Хозяева" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                        <input type="text" id="m-away" placeholder="Гости" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                        <input type="text" id="m-score" placeholder="Счет (например: 2:1)" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                        <select id="m-status" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                            <option value="Scheduled">Запланирован</option>
+                            <option value="Live">LIVE</option>
+                            <option value="Finished">Завершен</option>
+                        </select>
+                        <textarea id="m-home-lineup" placeholder="Состав хозяев (через запятую)" class="md:col-span-2 bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none h-20"></textarea>
+                        <textarea id="m-away-lineup" placeholder="Состав гостей (через запятую)" class="md:col-span-2 bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none h-20"></textarea>
+                        <div class="md:col-span-2 grid grid-cols-2 gap-4">
+                            <input type="number" id="m-home-possession" placeholder="Владение хозяев %" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                            <input type="number" id="m-away-possession" placeholder="Владение гостей %" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                        </div>
+                        <div class="md:col-span-2 grid grid-cols-3 gap-4">
+                            <input type="number" id="m-home-shots" placeholder="Удары хозяев" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                            <input type="number" id="m-away-shots" placeholder="Удары гостей" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                            <input type="number" id="m-home-corners" placeholder="Угловые" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                        </div>
+                        <button type="submit" class="md:col-span-2 bg-gkx-green text-gkx-black font-bold py-3 rounded hover:bg-white transition">Добавить матч</button>
+                    </form>
+                </div>
+
+                <div class="bg-gkx-dark p-6 rounded-xl border border-gray-800">
+                    <h3 class="text-xl font-bold mb-4 text-gkx-green">Все матчи (<span id="matches-count">0</span>)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-900 text-gray-400 text-xs uppercase">
+                                <tr>
+                                    <th class="p-4 text-left">Дата</th>
+                                    <th class="p-4 text-left">Лига</th>
+                                    <th class="p-4 text-center">Матч</th>
+                                    <th class="p-4 text-center">Счет</th>
+                                    <th class="p-4 text-center">Статус</th>
+                                    <th class="p-4 text-right">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-matches-body" class="divide-y divide-gray-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-news" class="admin-tab-content hidden space-y-6">
+                <div class="bg-gkx-dark p-6 rounded-xl border border-gray-800">
+                    <h3 class="text-xl font-bold mb-4 text-gkx-green">Добавить новость</h3>
+                    <form id="add-news-form" class="space-y-4">
+                        <input type="text" id="n-title" placeholder="Заголовок" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                        <textarea id="n-content" placeholder="Полный текст статьи..." class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none h-40" required></textarea>
+                        <div class="border-2 border-dashed border-gray-700 rounded p-4 text-center">
+                            <p class="text-gray-400 mb-2">Загрузить изображение</p>
+                            <input type="file" id="n-image-file" accept="image/*" class="hidden" onchange="previewImage(this)">
+                            <button type="button" onclick="document.getElementById('n-image-file').click()" class="bg-gray-800 px-4 py-2 rounded hover:bg-gray-700 transition">Выбрать файл</button>
+                            <div id="image-preview" class="mt-4 hidden"><img class="max-h-48 mx-auto rounded"></div>
+                        </div>
+                        <input type="text" id="n-image-url" placeholder="Или URL изображения" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                        <button type="submit" class="w-full bg-gkx-green text-gkx-black font-bold py-3 rounded hover:bg-white transition">Опубликовать</button>
+                    </form>
+                </div>
+
+                <div class="bg-gkx-dark p-6 rounded-xl border border-gray-800">
+                    <h3 class="text-xl font-bold mb-4 text-gkx-green">Все новости (<span id="news-count">0</span>)</h3>
+                    <div class="space-y-4" id="admin-news-list"></div>
+                </div>
+            </div>
+
+            <div id="admin-comments" class="admin-tab-content hidden space-y-6">
+                <div class="bg-gkx-dark p-6 rounded-xl border border-gray-800">
+                    <h3 class="text-xl font-bold mb-4 text-gkx-green">Все комментарии (<span id="comments-count">0</span>)</h3>
+                    <div class="space-y-4" id="admin-comments-list"></div>
+                </div>
+            </div>
+
+            <div id="admin-users" class="admin-tab-content hidden">
+                <div class="bg-gkx-dark rounded-xl border border-gray-800 overflow-hidden">
+                    <div class="p-6 border-b border-gray-800 flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gkx-green">Зарегистрированные пользователи (<span id="users-count">0</span>)</h3>
+                        <div class="text-sm text-gray-400">Администраторов: <span id="admins-count" class="text-gkx-green">0</span></div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-900 text-gray-400 text-xs uppercase">
+                                <tr>
+                                    <th class="p-4 text-left">Пользователь</th>
+                                    <th class="p-4 text-left">Контакты</th>
+                                    <th class="p-4 text-left">Роль</th>
+                                    <th class="p-4 text-left">Дата регистрации</th>
+                                    <th class="p-4 text-right">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body" class="divide-y divide-gray-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gkx-dark border-t border-gray-800 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>© 2024 GKX | Goal eXpress</p>
+        </div>
+    </footer>
+
+    <!-- МОДАЛЬНОЕ ОКНО: ВХОД/РЕГИСТРАЦИЯ -->
+    <div id="modal-login" class="modal fixed inset-0 bg-black/90 hidden items-center justify-center z-50">
+        <div class="bg-gkx-dark p-8 rounded-xl border border-gkx-green w-full max-w-md relative m-4">
+            <button onclick="closeModal('login')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold text-white mb-6 text-center">Вход в <span class="text-gkx-green">GKX</span></h2>
+            <form id="login-form" class="space-y-4">
+                <input type="text" id="auth-nick" placeholder="Никнейм" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                <input type="email" id="auth-email" placeholder="Email (необязательно)" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                <input type="tel" id="auth-phone" placeholder="Телефон (необязательно)" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                <input type="text" id="auth-avatar" placeholder="URL аватарки (необязательно)" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                <button type="submit" class="w-full bg-gkx-green text-gkx-black font-bold py-3 rounded hover:bg-white transition">Войти / Регистрация</button>
+            </form>
+            <p class="text-gray-500 text-xs text-center mt-4">При первом входе с новым ником будет создана учетная запись</p>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: ПРОСМОТР НОВОСТИ -->
+    <div id="modal-news" class="modal fixed inset-0 bg-black/95 hidden items-center justify-center z-50 overflow-y-auto">
+        <div class="bg-gkx-dark w-full max-w-4xl my-8 mx-4 rounded-xl border border-gray-800 relative animate-slide-in">
+            <!-- Кнопка выхода в углу -->
+            <div class="sticky top-0 right-0 p-4 flex justify-end z-20 bg-gradient-to-b from-gkx-dark to-transparent rounded-t-xl">
+                <button onclick="closeModal('news')" class="modal-close-btn w-14 h-14 rounded-full flex items-center justify-center text-gkx-green hover:text-white animate-bounce-in" title="Закрыть">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="news-full-content" class="max-h-[75vh] overflow-y-auto pb-4"></div>
+            
+            <!-- Большая кнопка ВЫЙТИ внизу -->
+            <div class="sticky bottom-0 p-4 bg-gradient-to-t from-gkx-dark to-transparent rounded-b-xl">
+                <button onclick="closeModal('news')" class="exit-button-large w-full py-4 rounded-xl font-black text-lg tracking-wide animate-bounce-in">
+                    ✕ ЗАКРЫТЬ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: ДЕТАЛИ МАТЧА -->
+    <div id="modal-match" class="modal fixed inset-0 bg-black/95 hidden items-center justify-center z-50 overflow-y-auto">
+        <div class="bg-gkx-dark w-full max-w-4xl my-8 mx-4 rounded-xl border border-gray-800 relative p-6 animate-slide-in">
+            <!-- Кнопка выхода в углу -->
+            <button onclick="closeModal('match')" class="modal-close-btn absolute top-4 right-4 w-14 h-14 rounded-full flex items-center justify-center text-gkx-green hover:text-white z-20 animate-bounce-in" title="Закрыть">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            
+            <div id="match-full-content" class="pb-4"></div>
+            
+            <!-- Большая кнопка ВЫЙТИ внизу -->
+            <div class="sticky bottom-0 p-4 bg-gradient-to-t from-gkx-dark to-transparent rounded-b-xl">
+                <button onclick="closeModal('match')" class="exit-button-large w-full py-4 rounded-xl font-black text-lg tracking-wide animate-bounce-in">
+                    ✕ ЗАКРЫТЬ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: РЕДАКТИРОВАНИЕ МАТЧА -->
+    <div id="modal-edit-match" class="modal fixed inset-0 bg-black/90 hidden items-center justify-center z-50">
+        <div class="bg-gkx-dark p-8 rounded-xl border border-gkx-green w-full max-w-2xl relative m-4 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('edit-match')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold text-gkx-green mb-6">Редактировать матч</h2>
+            <form id="edit-match-form" class="space-y-4">
+                <input type="hidden" id="edit-m-id">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="edit-m-league" placeholder="Лига" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                    <input type="datetime-local" id="edit-m-date" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="edit-m-home" placeholder="Хозяева" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                    <input type="text" id="edit-m-away" placeholder="Гости" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="edit-m-score" placeholder="Счет" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                    <select id="edit-m-status" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                        <option value="Scheduled">Запланирован</option>
+                        <option value="Live">LIVE</option>
+                        <option value="Finished">Завершен</option>
+                    </select>
+                </div>
+                <textarea id="edit-m-home-lineup" placeholder="Состав хозяев" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none h-20"></textarea>
+                <textarea id="edit-m-away-lineup" placeholder="Состав гостей" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none h-20"></textarea>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="edit-m-home-possession" placeholder="Владение хозяев %" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                    <input type="number" id="edit-m-away-possession" placeholder="Владение гостей %" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                </div>
+                <div class="grid grid-cols-3 gap-4">
+                    <input type="number" id="edit-m-home-shots" placeholder="Удары хозяев" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                    <input type="number" id="edit-m-away-shots" placeholder="Удары гостей" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                    <input type="number" id="edit-m-home-corners" placeholder="Угловые" class="bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                </div>
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" class="flex-1 bg-gkx-green text-gkx-black font-bold py-3 rounded hover:bg-white transition">Сохранить</button>
+                    <button type="button" onclick="closeModal('edit-match')" class="flex-1 bg-gray-700 text-white font-bold py-3 rounded hover:bg-gray-600 transition">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: РЕДАКТИРОВАНИЕ НОВОСТИ -->
+    <div id="modal-edit-news" class="modal fixed inset-0 bg-black/90 hidden items-center justify-center z-50">
+        <div class="bg-gkx-dark p-8 rounded-xl border border-gkx-green w-full max-w-2xl relative m-4 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('edit-news')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold text-gkx-green mb-6">Редактировать новость</h2>
+            <form id="edit-news-form" class="space-y-4">
+                <input type="hidden" id="edit-n-id">
+                <input type="text" id="edit-n-title" placeholder="Заголовок" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                <textarea id="edit-n-content" placeholder="Текст статьи" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none h-40" required></textarea>
+                <input type="text" id="edit-n-image" placeholder="URL изображения" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none">
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" class="flex-1 bg-gkx-green text-gkx-black font-bold py-3 rounded hover:bg-white transition">Сохранить</button>
+                    <button type="button" onclick="closeModal('edit-news')" class="flex-1 bg-gray-700 text-white font-bold py-3 rounded hover:bg-gray-600 transition">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: РЕДАКТИРОВАНИЕ КОММЕНТАРИЯ -->
+    <div id="modal-edit-comment" class="modal fixed inset-0 bg-black/90 hidden items-center justify-center z-50">
+        <div class="bg-gkx-dark p-8 rounded-xl border border-gkx-green w-full max-w-lg relative m-4">
+            <button onclick="closeModal('edit-comment')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold text-gkx-green mb-6">Редактировать комментарий</h2>
+            <form id="edit-comment-form" class="space-y-4">
+                <input type="hidden" id="edit-c-id">
+                <input type="hidden" id="edit-c-type">
+                <input type="hidden" id="edit-c-item-id">
+                <textarea id="edit-c-text" placeholder="Текст комментария" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none h-32" required></textarea>
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" class="flex-1 bg-gkx-green text-gkx-black font-bold py-3 rounded hover:bg-white transition">Сохранить</button>
+                    <button type="button" onclick="closeModal('edit-comment')" class="flex-1 bg-gray-700 text-white font-bold py-3 rounded hover:bg-gray-600 transition">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ -->
+    <div id="modal-confirm" class="modal fixed inset-0 bg-black/90 hidden items-center justify-center z-50">
+        <div class="bg-gkx-dark p-8 rounded-xl border border-red-500/50 w-full max-w-md relative m-4">
+            <h2 class="text-2xl font-bold text-red-500 mb-4 text-center">Подтверждение</h2>
+            <p id="confirm-message" class="text-gray-300 mb-6 text-center"></p>
+            <div class="flex gap-4">
+                <button id="confirm-yes" class="flex-1 bg-red-500 text-white font-bold py-3 rounded hover:bg-red-600 transition">Удалить</button>
+                <button onclick="closeModal('confirm')" class="flex-1 bg-gray-700 text-white font-bold py-3 rounded hover:bg-gray-600 transition">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === ДАННЫЕ ===
+        let matches = JSON.parse(localStorage.getItem('gkx_matches')) || [
+            { id: 1, league: 'АПЛ', date: '2024-01-15T15:00', home: 'Ман Сити', away: 'Арсенал', score: '2:1', status: 'Finished', homeLineup: 'Эдерсон, Уокер, Диаш, Аке, Гвардиол, Родри, Де Брюйне, Силва, Фоден, Грилиш, Холанд', awayLineup: 'Райя, Уайт, Салиба, Габриэл, Зинченко, Райс, Эдегор, Сака, Хаверц, Мартинелли, Жезус', homePossession: 58, awayPossession: 42, homeShots: 15, awayShots: 8, homeCorners: 7, awayCorners: 3, comments: [] },
+            { id: 2, league: 'Ла Лига', date: '2024-01-16T20:00', home: 'Реал', away: 'Барселона', score: '1:1', status: 'Live', homeLineup: 'Куртуа, Карвахаль, Милитао, Рюдигер, Менди, Модрич, Кроос, Вальверде, Беллингем, Винисиус, Родриго', awayLineup: 'Тер Штеген, Кунде, Араухо, Кристенсен, Канселу, Де Йонг, Гюндоган, Педри, Рафинья, Левандовски, Феликс', homePossession: 45, awayPossession: 55, homeShots: 10, awayShots: 12, homeCorners: 4, awayCorners: 6, comments: [] },
+            { id: 3, league: 'Серия А', date: '2024-01-17T18:00', home: 'Ювентус', away: 'Милан', score: '-', status: 'Scheduled', homeLineup: '', awayLineup: '', homePossession: null, awayPossession: null, homeShots: null, awayShots: null, homeCorners: null, awayCorners: null, comments: [] },
+            { id: 4, league: 'Бундеслига', date: '2024-01-15T17:30', home: 'Бавария', away: 'Дортмунд', score: '3:2', status: 'Finished', homeLineup: '', awayLineup: '', homePossession: 60, awayPossession: 40, homeShots: 18, awayShots: 10, homeCorners: 8, awayCorners: 4, comments: [] },
+            { id: 5, league: 'РПЛ', date: '2024-01-18T16:00', home: 'Зенит', away: 'Спартак', score: '-', status: 'Scheduled', homeLineup: '', awayLineup: '', homePossession: null, awayPossession: null, homeShots: null, awayShots: null, homeCorners: null, awayCorners: null, comments: [] }
+        ];
+
+        let news = JSON.parse(localStorage.getItem('gkx_news')) || [
+            { id: 1, title: 'Мбаппе переходит в Реал', content: 'По информации инсайдеров, Килиан Мбаппе наконец-то согласовал переход в мадридский Реал. Контракт будет подписан на 5 лет с зарплатой 25 миллионов евро в год. Это станет одним из самых громких трансферов десятилетия.', image: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974', date: '2024-01-15', comments: [] },
+            { id: 2, title: 'Травма звезды АПЛ', content: 'Нападающий Манчестер Юнайтед получил серьезную травму колена в матче против Ливерпуля. Предварительный диагноз - разрыв крестообразных связок. Игрок пропустит остаток сезона.', image: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12', date: '2024-01-14', comments: [] }
+        ];
+
+        let users = JSON.parse(localStorage.getItem('gkx_users')) || [
+            { id: 1, nick: 'Admin', email: '', phone: '', avatar: 'https://cdn-icons-png.flaticon.com/512/149/149071.png', isAdmin: true, registeredAt: '2024-01-01' }
+        ];
+
+        let currentUser = JSON.parse(localStorage.getItem('gkx_currentUser')) || null;
+        let userLikes = JSON.parse(localStorage.getItem('gkx_userLikes')) || {};
+        let tempImageData = null;
+        let confirmCallback = null;
+        let selectedDate = null;
+
+        // === ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ КЛАССА ЛИГИ ===
+        function getLeagueClass(league) {
+            const leagueLower = league.toLowerCase();
+            if (leagueLower.includes('бундес')) return 'league-bundesliga';
+            if (leagueLower.includes('рпл') || leagueLower.includes('премьер')) return 'league-rpl';
+            if (leagueLower.includes('апл') || leagueLower.includes('англи')) return 'league-epl';
+            if (leagueLower.includes('ла лига') || leagueLower.includes('испан')) return 'league-laliga';
+            if (leagueLower.includes('серия') || leagueLower.includes('итали')) return 'league-seriea';
+            return 'league-default';
+        }
+
+        // === ИНИЦИАЛИЗАЦИЯ ===
+        function init() {
+            renderAll();
+            updateUserPanel();
+            updateAdminNavLink();
+        }
+
+        function saveData() {
+            localStorage.setItem('gkx_matches', JSON.stringify(matches));
+            localStorage.setItem('gkx_news', JSON.stringify(news));
+            localStorage.setItem('gkx_users', JSON.stringify(users));
+            localStorage.setItem('gkx_userLikes', JSON.stringify(userLikes));
+            if (currentUser) localStorage.setItem('gkx_currentUser', JSON.stringify(currentUser));
+        }
+
+        // === НАВИГАЦИЯ ===
+        function showSection(sectionId) {
+            ['home', 'matches', 'news', 'admin'].forEach(id => {
+                document.getElementById('section-' + id).classList.add('hidden');
+            });
+            document.getElementById('section-' + sectionId).classList.remove('hidden');
+            window.scrollTo(0, 0);
+            if (sectionId === 'admin') {
+                renderAdminMatches();
+                renderAdminNews();
+                renderAdminComments();
+                renderUsersTable();
+            }
+            if (sectionId === 'matches') {
+                renderDateFilters();
+                renderAllMatches();
+            }
+        }
+
+        function showAdminTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => {
+                t.classList.remove('border-gkx-green', 'text-gkx-green');
+                t.classList.add('border-transparent', 'text-gray-400');
+            });
+            event.target.classList.remove('border-transparent', 'text-gray-400');
+            event.target.classList.add('border-gkx-green', 'text-gkx-green');
+            
+            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById('admin-' + tab).classList.remove('hidden');
+        }
+
+        function checkAdminAccess() {
+            if (!currentUser) {
+                alert('Сначала войдите в аккаунт!');
+                openModal('login');
+                return;
+            }
+            const user = users.find(u => u.id === currentUser.id);
+            if (!user || !user.isAdmin) {
+                alert('Доступ запрещен! Только для администраторов.');
+                return;
+            }
+            showSection('admin');
+        }
+
+        function updateAdminNavLink() {
+            const link = document.getElementById('admin-nav-link');
+            const linkMobile = document.getElementById('admin-nav-link-mobile');
+            if (currentUser) {
+                const user = users.find(u => u.id === currentUser.id);
+                if (user && user.isAdmin) {
+                    link.classList.remove('hidden');
+                    linkMobile.classList.remove('hidden');
+                } else {
+                    link.classList.add('hidden');
+                    linkMobile.classList.add('hidden');
+                }
+            } else {
+                link.classList.add('hidden');
+                linkMobile.classList.add('hidden');
+            }
+        }
+
+        // === ФИЛЬТР ПО ДАТАМ ===
+        function renderDateFilters() {
+            const container = document.getElementById('date-filters');
+            const dates = [...new Set(matches.map(m => m.date.split('T')[0]))].sort();
+            
+            let html = `
+                <button onclick="filterByDate(null)" class="date-filter-btn px-4 py-2 rounded-lg text-sm ${!selectedDate ? 'active' : 'text-gray-300 bg-gray-800'}">
+                    📅 Все даты
+                </button>
+            `;
+            
+            dates.forEach(date => {
+                const dateObj = new Date(date);
+                const day = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+                const isToday = date === new Date().toISOString().split('T')[0];
+                const label = isToday ? `Сегодня (${day})` : day;
+                const isActive = selectedDate === date;
+                
+                html += `
+                    <button onclick="filterByDate('${date}')" class="date-filter-btn px-4 py-2 rounded-lg text-sm ${isActive ? 'active' : 'text-gray-300 bg-gray-800'}">
+                        ${label}
+                    </button>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function filterByDate(date) {
+            selectedDate = date;
+            renderDateFilters();
+            renderAllMatches();
+            
+            const label = document.getElementById('selected-date-label');
+            const count = document.getElementById('matches-on-date');
+            
+            if (date) {
+                const dateObj = new Date(date);
+                label.textContent = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+                const filteredMatches = matches.filter(m => m.date.split('T')[0] === date);
+                count.textContent = `(${filteredMatches.length} матчей)`;
+            } else {
+                label.textContent = 'Все даты';
+                count.textContent = `(${matches.length} матчей)`;
+            }
+        }
+
+        // === ОТРИСОВКА ===
+        function renderAll() {
+            renderHomeNews();
+            renderHomeMatches();
+            renderAllMatches();
+            renderAllNews();
+        }
+
+        function renderHomeNews() {
+            const grid = document.getElementById('home-news-grid');
+            grid.innerHTML = news.slice(0, 3).map(n => createNewsCard(n)).join('');
+        }
+
+        function renderAllNews() {
+            const grid = document.getElementById('all-news-grid');
+            grid.innerHTML = news.map(n => createNewsCard(n)).join('');
+        }
+
+        function createNewsCard(n) {
+            return `
+                <div class="bg-gkx-dark rounded-xl overflow-hidden border border-gray-800 hover:border-gkx-green transition cursor-pointer group" onclick="openNewsModal(${n.id})">
+                    <div class="h-48 overflow-hidden">
+                        <img src="${n.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="${n.title}">
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-gkx-green transition">${n.title}</h3>
+                        <p class="text-gray-400 text-sm mb-4 line-clamp-2">${n.content}</p>
+                        <div class="flex justify-between items-center text-xs text-gray-500">
+                            <span>${n.date}</span>
+                            <span>${n.comments.length} комментариев</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderHomeMatches() {
+            const list = document.getElementById('home-matches-list');
+            list.innerHTML = matches.slice(0, 5).map(m => createMatchCard(m, false)).join('');
+        }
+
+        function renderAllMatches() {
+            const grid = document.getElementById('all-matches-grid');
+            const filteredMatches = selectedDate 
+                ? matches.filter(m => m.date.split('T')[0] === selectedDate)
+                : matches;
+            
+            if (filteredMatches.length === 0) {
+                grid.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-6xl mb-4">📅</div>
+                        <h3 class="text-xl font-bold text-gray-400 mb-2">Нет матчей на эту дату</h3>
+                        <p class="text-gray-500">Попробуйте выбрать другую дату</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = filteredMatches.map(m => createMatchCard(m, true)).join('');
+        }
+
+        function createMatchCard(m, clickable) {
+            const date = new Date(m.date).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            const statusClass = m.status === 'Live' ? 'text-red-500 animate-pulse' : m.status === 'Finished' ? 'text-gray-400' : 'text-gkx-green';
+            const onClick = clickable ? `onclick="openMatchModal(${m.id})"` : '';
+            const cursor = clickable ? 'cursor-pointer hover:scale-[1.02]' : '';
+            const leagueClass = getLeagueClass(m.league);
+            
+            return `
+                <div ${onClick} class="${leagueClass} p-4 rounded-lg border border-gray-800 ${cursor} transition shadow-lg">
+                    <div class="flex justify-between items-center text-xs text-gray-400 mb-2">
+                        <span class="font-bold">${m.league}</span>
+                        <span>${date}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex-1 text-right font-bold text-lg">${m.home}</div>
+                        <div class="px-6 font-black text-2xl ${statusClass}">${m.score}</div>
+                        <div class="flex-1 text-left font-bold text-lg">${m.away}</div>
+                    </div>
+                    <div class="text-center mt-2 text-xs ${statusClass} font-bold">${m.status === 'Live' ? '● LIVE' : m.status === 'Finished' ? 'FT' : 'Запланирован'}</div>
+                </div>
+            `;
+        }
+
+        // === АДМИНКА: МАТЧИ ===
+        function renderAdminMatches() {
+            const tbody = document.getElementById('admin-matches-body');
+            document.getElementById('matches-count').textContent = matches.length;
+            
+            tbody.innerHTML = matches.map(m => {
+                const date = new Date(m.date).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                return `
+                    <tr class="admin-row border-b border-gray-800">
+                        <td class="p-4 text-gray-400 text-sm">${date}</td>
+                        <td class="p-4 font-bold text-gkx-green">${m.league}</td>
+                        <td class="p-4 text-center">
+                            <span class="text-white">${m.home}</span>
+                            <span class="text-gray-500 mx-2">vs</span>
+                            <span class="text-white">${m.away}</span>
+                        </td>
+                        <td class="p-4 text-center font-bold text-lg">${m.score}</td>
+                        <td class="p-4 text-center">
+                            <span class="px-2 py-1 rounded text-xs font-bold ${getStatusColor(m.status)}">${m.status}</span>
+                        </td>
+                        <td class="p-4 text-right">
+                            <button onclick="openEditMatchModal(${m.id})" class="text-gkx-green hover:text-white text-sm mr-3">✏️</button>
+                            <button onclick="confirmDelete('match', ${m.id})" class="text-red-500 hover:text-red-400 text-sm">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function getStatusColor(status) {
+            if(status === 'Live') return 'bg-red-500/20 text-red-500';
+            if(status === 'Finished') return 'bg-gray-700 text-gray-300';
+            return 'bg-gkx-green/20 text-gkx-green';
+        }
+
+        // === АДМИНКА: НОВОСТИ ===
+        function renderAdminNews() {
+            const list = document.getElementById('admin-news-list');
+            document.getElementById('news-count').textContent = news.length;
+            
+            list.innerHTML = news.map(n => `
+                <div class="flex items-center gap-4 bg-gray-900/50 p-4 rounded-lg admin-row">
+                    <img src="${n.image}" class="w-20 h-20 object-cover rounded" alt="${n.title}">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-white mb-1">${n.title}</h4>
+                        <p class="text-gray-400 text-sm line-clamp-1">${n.content}</p>
+                        <div class="text-xs text-gray-500 mt-1">${n.date} • ${n.comments.length} комментариев</div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="openEditNewsModal(${n.id})" class="text-gkx-green hover:text-white text-xl">✏️</button>
+                        <button onclick="confirmDelete('news', ${n.id})" class="text-red-500 hover:text-red-400 text-xl">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // === АДМИНКА: КОММЕНТАРИИ ===
+        function renderAdminComments() {
+            const list = document.getElementById('admin-comments-list');
+            let allComments = [];
+            
+            news.forEach(n => {
+                n.comments.forEach(c => {
+                    allComments.push({ ...c, type: 'news', itemId: n.id, itemTitle: n.title });
+                });
+            });
+            matches.forEach(m => {
+                m.comments.forEach(c => {
+                    allComments.push({ ...c, type: 'match', itemId: m.id, itemTitle: `${m.home} vs ${m.away}` });
+                });
+            });
+            
+            document.getElementById('comments-count').textContent = allComments.length;
+            
+            if (allComments.length === 0) {
+                list.innerHTML = '<p class="text-gray-500 text-center py-8">Пока нет комментариев</p>';
+                return;
+            }
+            
+            list.innerHTML = allComments.map((c, index) => `
+                <div class="flex items-start gap-4 bg-gray-900/50 p-4 rounded-lg admin-row">
+                    <img src="${c.avatar}" class="w-12 h-12 rounded-full border border-gray-700">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <div class="font-bold text-gkx-green">${c.nick}</div>
+                                <div class="text-xs text-gray-500">${c.type === 'news' ? '📰' : '⚽'} ${c.itemTitle}</div>
+                            </div>
+                            <div class="text-xs text-gray-500">${c.date}</div>
+                        </div>
+                        <p class="text-gray-300 mb-2">${c.text}</p>
+                        <div class="flex items-center gap-4 text-sm">
+                            <span class="text-gray-500">❤️ ${c.likes || 0}</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="openEditCommentModal('${c.type}', ${c.itemId}, ${index})" class="text-gkx-green hover:text-white text-xl">✏️</button>
+                        <button onclick="confirmDelete('comment', '${c.type}', ${c.itemId}, ${index})" class="text-red-500 hover:text-red-400 text-xl">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // === АДМИНКА: ПОЛЬЗОВАТЕЛИ ===
+        function renderUsersTable() {
+            const tbody = document.getElementById('users-table-body');
+            const adminsCount = users.filter(u => u.isAdmin).length;
+            document.getElementById('users-count').textContent = users.length;
+            document.getElementById('admins-count').textContent = adminsCount;
+            
+            tbody.innerHTML = users.map(u => `
+                <tr class="admin-row border-b border-gray-800">
+                    <td class="p-4">
+                        <div class="flex items-center gap-3">
+                            <img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-700">
+                            <div>
+                                <div class="font-bold text-white">${u.nick}</div>
+                                <div class="text-xs text-gray-500">ID: ${u.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-4 text-sm">
+                        ${u.email ? `<div class="text-gray-300">📧 ${u.email}</div>` : ''}
+                        ${u.phone ? `<div class="text-gray-300">📱 ${u.phone}</div>` : ''}
+                        ${!u.email && !u.phone ? '<span class="text-gray-500">-</span>' : ''}
+                    </td>
+                    <td class="p-4">
+                        <span class="px-3 py-1 rounded text-xs font-bold ${u.isAdmin ? 'bg-gkx-green text-gkx-black' : 'bg-gray-700 text-gray-300'}">
+                            ${u.isAdmin ? 'АДМИН' : 'ПОЛЬЗОВАТЕЛЬ'}
+                        </span>
+                    </td>
+                    <td class="p-4 text-gray-400 text-sm">${u.registeredAt}</td>
+                    <td class="p-4 text-right">
+                        ${u.id !== currentUser.id ? `
+                            <button onclick="toggleAdminRole(${u.id})" class="text-sm px-3 py-1 rounded ${u.isAdmin ? 'bg-red-500/20 text-red-500 hover:bg-red-500/30' : 'bg-gkx-green/20 text-gkx-green hover:bg-gkx-green/30'} transition mr-2">
+                                ${u.isAdmin ? 'Снять' : 'Админ'}
+                            </button>
+                            <button onclick="confirmDelete('user', ${u.id})" class="text-red-500 hover:text-red-400 text-sm">🗑️</button>
+                        ` : '<span class="text-gray-500 text-sm">Вы</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // === МОДАЛЬНЫЕ ОКНА ===
+        function openModal(type) {
+            document.getElementById('modal-' + type).classList.remove('hidden');
+            document.getElementById('modal-' + type).classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(type) {
+            document.getElementById('modal-' + type).classList.add('hidden');
+            document.getElementById('modal-' + type).classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    const type = modal.id.replace('modal-', '');
+                    closeModal(type);
+                }
+            });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                ['news', 'match', 'edit-match', 'edit-news', 'edit-comment', 'confirm', 'login'].forEach(type => {
+                    const modal = document.getElementById('modal-' + type);
+                    if (!modal.classList.contains('hidden')) {
+                        closeModal(type);
+                    }
+                });
+            }
+        });
+
+        function confirmDelete(type, ...args) {
+            const modal = document.getElementById('modal-confirm');
+            const message = document.getElementById('confirm-message');
+            const yesBtn = document.getElementById('confirm-yes');
+            
+            let itemName = '';
+            if (type === 'match') {
+                const m = matches.find(x => x.id === args[0]);
+                itemName = `матч "${m.home} vs ${m.away}"`;
+            } else if (type === 'news') {
+                const n = news.find(x => x.id === args[0]);
+                itemName = `новость "${n.title}"`;
+            } else if (type === 'user') {
+                const u = users.find(x => x.id === args[0]);
+                itemName = `пользователя "${u.nick}"`;
+            } else if (type === 'comment') {
+                itemName = 'комментарий';
+            }
+            
+            message.textContent = `Вы уверены, что хотите удалить ${itemName}? Это действие нельзя отменить.`;
+            
+            confirmCallback = () => {
+                if (type === 'match') {
+                    matches = matches.filter(x => x.id !== args[0]);
+                    renderAdminMatches();
+                    renderAll();
+                } else if (type === 'news') {
+                    news = news.filter(x => x.id !== args[0]);
+                    renderAdminNews();
+                    renderAll();
+                } else if (type === 'user') {
+                    users = users.filter(x => x.id !== args[0]);
+                    renderUsersTable();
+                } else if (type === 'comment') {
+                    const [commentType, itemId, commentIndex] = args;
+                    const collection = commentType === 'news' ? news : matches;
+                    const item = collection.find(x => x.id === itemId);
+                    if (item) {
+                        item.comments.splice(commentIndex, 1);
+                        renderAdminComments();
+                        renderAll();
+                    }
+                }
+                saveData();
+                closeModal('confirm');
+                alert('Удалено успешно!');
+            };
+            
+            yesBtn.onclick = confirmCallback;
+            openModal('confirm');
+        }
+
+        // === РЕДАКТИРОВАНИЕ МАТЧА ===
+        function openEditMatchModal(id) {
+            const m = matches.find(x => x.id === id);
+            if (!m) return;
+            
+            document.getElementById('edit-m-id').value = m.id;
+            document.getElementById('edit-m-league').value = m.league;
+            document.getElementById('edit-m-date').value = m.date;
+            document.getElementById('edit-m-home').value = m.home;
+            document.getElementById('edit-m-away').value = m.away;
+            document.getElementById('edit-m-score').value = m.score;
+            document.getElementById('edit-m-status').value = m.status;
+            document.getElementById('edit-m-home-lineup').value = m.homeLineup || '';
+            document.getElementById('edit-m-away-lineup').value = m.awayLineup || '';
+            document.getElementById('edit-m-home-possession').value = m.homePossession || '';
+            document.getElementById('edit-m-away-possession').value = m.awayPossession || '';
+            document.getElementById('edit-m-home-shots').value = m.homeShots || '';
+            document.getElementById('edit-m-away-shots').value = m.awayShots || '';
+            document.getElementById('edit-m-home-corners').value = m.homeCorners || '';
+            
+            openModal('edit-match');
+        }
+
+        document.getElementById('edit-match-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('edit-m-id').value);
+            const m = matches.find(x => x.id === id);
+            if (m) {
+                m.league = document.getElementById('edit-m-league').value;
+                m.date = document.getElementById('edit-m-date').value;
+                m.home = document.getElementById('edit-m-home').value;
+                m.away = document.getElementById('edit-m-away').value;
+                m.score = document.getElementById('edit-m-score').value;
+                m.status = document.getElementById('edit-m-status').value;
+                m.homeLineup = document.getElementById('edit-m-home-lineup').value;
+                m.awayLineup = document.getElementById('edit-m-away-lineup').value;
+                m.homePossession = document.getElementById('edit-m-home-possession').value || null;
+                m.awayPossession = document.getElementById('edit-m-away-possession').value || null;
+                m.homeShots = document.getElementById('edit-m-home-shots').value || null;
+                m.awayShots = document.getElementById('edit-m-away-shots').value || null;
+                m.homeCorners = document.getElementById('edit-m-home-corners').value || null;
+                
+                saveData();
+                renderAdminMatches();
+                renderAll();
+                closeModal('edit-match');
+                alert('Матч обновлён!');
+            }
+        });
+
+        // === РЕДАКТИРОВАНИЕ НОВОСТИ ===
+        function openEditNewsModal(id) {
+            const n = news.find(x => x.id === id);
+            if (!n) return;
+            
+            document.getElementById('edit-n-id').value = n.id;
+            document.getElementById('edit-n-title').value = n.title;
+            document.getElementById('edit-n-content').value = n.content;
+            document.getElementById('edit-n-image').value = n.image;
+            
+            openModal('edit-news');
+        }
+
+        document.getElementById('edit-news-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('edit-n-id').value);
+            const n = news.find(x => x.id === id);
+            if (n) {
+                n.title = document.getElementById('edit-n-title').value;
+                n.content = document.getElementById('edit-n-content').value;
+                n.image = document.getElementById('edit-n-image').value;
+                
+                saveData();
+                renderAdminNews();
+                renderAll();
+                closeModal('edit-news');
+                alert('Новость обновлена!');
+            }
+        });
+
+        // === РЕДАКТИРОВАНИЕ КОММЕНТАРИЯ ===
+        function openEditCommentModal(type, itemId, commentIndex) {
+            const collection = type === 'news' ? news : matches;
+            const item = collection.find(x => x.id === itemId);
+            if (!item || !item.comments[commentIndex]) return;
+            
+            const comment = item.comments[commentIndex];
+            document.getElementById('edit-c-id').value = commentIndex;
+            document.getElementById('edit-c-type').value = type;
+            document.getElementById('edit-c-item-id').value = itemId;
+            document.getElementById('edit-c-text').value = comment.text;
+            
+            openModal('edit-comment');
+        }
+
+        document.getElementById('edit-comment-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const commentIndex = parseInt(document.getElementById('edit-c-id').value);
+            const type = document.getElementById('edit-c-type').value;
+            const itemId = parseInt(document.getElementById('edit-c-item-id').value);
+            const newText = document.getElementById('edit-c-text').value;
+            
+            const collection = type === 'news' ? news : matches;
+            const item = collection.find(x => x.id === itemId);
+            if (item && item.comments[commentIndex]) {
+                item.comments[commentIndex].text = newText;
+                item.comments[commentIndex].edited = true;
+                
+                saveData();
+                renderAdminComments();
+                renderAll();
+                closeModal('edit-comment');
+                alert('Комментарий обновлён!');
+            }
+        });
+
+        // === ПРОСМОТР НОВОСТИ ===
+        function openNewsModal(id) {
+            const n = news.find(x => x.id === id);
+            if (!n) return;
+            
+            const content = document.getElementById('news-full-content');
+            content.innerHTML = `
+                <img src="${n.image}" class="w-full h-64 md:h-96 object-cover rounded-t-xl" alt="${n.title}">
+                <div class="p-8">
+                    <h2 class="text-3xl md:text-4xl font-black mb-4 text-gkx-green">${n.title}</h2>
+                    <div class="text-gray-400 text-sm mb-6">${n.date}</div>
+                    <div class="prose prose-invert max-w-none text-gray-300 leading-relaxed mb-8">${n.content.replace(/\n/g, '<br>')}</div>
+                    
+                    <div class="border-t border-gray-800 pt-6">
+                        <h3 class="text-xl font-bold mb-4">Комментарии (${n.comments.length})</h3>
+                        ${currentUser ? `
+                            <form onsubmit="addComment('news', ${n.id}, this)" class="mb-6 flex gap-3">
+                                <input type="text" name="text" placeholder="Написать комментарий..." class="flex-1 bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                                <button type="submit" class="bg-gkx-green text-gkx-black px-6 py-3 rounded font-bold hover:bg-white transition">Отправить</button>
+                            </form>
+                        ` : '<p class="text-gray-500 mb-6"><button onclick="openModal(\'login\')" class="text-gkx-green hover:underline">Войдите</button>, чтобы комментировать</p>'}
+                        
+                        <div class="space-y-4">
+                            ${n.comments.length ? n.comments.map((c, index) => createCommentHTML(c, 'news', n.id, index)).join('') : '<p class="text-gray-500 text-center py-8">Пока нет комментариев. Будьте первым!</p>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+            openModal('news');
+        }
+
+        // === ПРОСМОТР МАТЧА ===
+        function openMatchModal(id) {
+            const m = matches.find(x => x.id === id);
+            if (!m) return;
+            
+            const date = new Date(m.date).toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            
+            const content = document.getElementById('match-full-content');
+            content.innerHTML = `
+                <div class="text-center mb-8">
+                    <div class="text-gkx-green font-bold mb-2">${m.league}</div>
+                    <div class="text-2xl md:text-4xl font-black mb-2">${m.home} ${m.score} ${m.away}</div>
+                    <div class="text-gray-400">${date}</div>
+                    <div class="inline-block mt-2 px-4 py-1 rounded ${m.status === 'Live' ? 'bg-red-500/20 text-red-500' : 'bg-gray-800 text-gray-400'}">${m.status}</div>
+                </div>
+
+                ${m.homePossession !== undefined ? `
+                <div class="bg-gray-900/50 rounded-xl p-6 mb-8">
+                    <h3 class="text-xl font-bold mb-4 text-center">Статистика матча</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-bold">${m.homePossession}%</span>
+                                <span class="text-gray-400">Владение мячом</span>
+                                <span class="font-bold">${m.awayPossession}%</span>
+                            </div>
+                            <div class="flex h-2 rounded-full overflow-hidden bg-gray-800">
+                                <div class="bg-gkx-green" style="width: ${m.homePossession}%"></div>
+                                <div class="bg-gray-600" style="width: ${m.awayPossession}%"></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 text-center text-sm">
+                            <div>
+                                <div class="text-gray-400 mb-1">Удары</div>
+                                <div class="font-bold text-lg">${m.homeShots || 0} - ${m.awayShots || 0}</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-400 mb-1">Угловые</div>
+                                <div class="font-bold text-lg">${m.homeCorners || 0} - ${m.awayCorners || 0}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gray-900/50 rounded-xl p-6">
+                        <h3 class="text-lg font-bold mb-4 text-gkx-green text-center">${m.home}</h3>
+                        <div class="space-y-2 text-sm">
+                            ${(m.homeLineup || 'Состав не указан').split(',').map(p => `<div class="flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-gkx-green/20 text-gkx-green flex items-center justify-center text-xs font-bold">11</span><span>${p.trim()}</span></div>`).join('')}
+                        </div>
+                    </div>
+                    <div class="bg-gray-900/50 rounded-xl p-6">
+                        <h3 class="text-lg font-bold mb-4 text-gkx-green text-center">${m.away}</h3>
+                        <div class="space-y-2 text-sm">
+                            ${(m.awayLineup || 'Состав не указан').split(',').map(p => `<div class="flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-gkx-green/20 text-gkx-green flex items-center justify-center text-xs font-bold">11</span><span>${p.trim()}</span></div>`).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-800 pt-6">
+                    <h3 class="text-xl font-bold mb-4">Комментарии к матчу (${m.comments.length})</h3>
+                    ${currentUser ? `
+                        <form onsubmit="addComment('match', ${m.id}, this)" class="mb-6 flex gap-3">
+                            <input type="text" name="text" placeholder="Написать комментарий..." class="flex-1 bg-black border border-gray-700 rounded p-3 text-white focus:border-gkx-green outline-none" required>
+                            <button type="submit" class="bg-gkx-green text-gkx-black px-6 py-3 rounded font-bold hover:bg-white transition">Отправить</button>
+                        </form>
+                    ` : '<p class="text-gray-500 mb-6"><button onclick="openModal(\'login\')" class="text-gkx-green hover:underline">Войдите</button>, чтобы комментировать</p>'}
+                    
+                    <div class="space-y-4">
+                        ${m.comments.length ? m.comments.map((c, index) => createCommentHTML(c, 'match', m.id, index)).join('') : '<p class="text-gray-500 text-center py-8">Пока нет комментариев</p>'}
+                    </div>
+                </div>
+            `;
+            openModal('match');
+        }
+
+        // === СОЗДАНИЕ HTML КОММЕНТАРИЯ ===
+        function createCommentHTML(c, type, itemId, index) {
+            const isOwner = currentUser && currentUser.nick === c.nick;
+            const isAdmin = currentUser && users.find(u => u.id === currentUser.id)?.isAdmin;
+            const likeKey = `${type}-${itemId}-${index}`;
+            const isLiked = userLikes[likeKey];
+            
+            return `
+                <div class="bg-gray-900/50 p-4 rounded-lg flex gap-4">
+                    <img src="${c.avatar}" class="w-10 h-10 rounded-full">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-gkx-green">${c.nick}</span>
+                                ${c.edited ? '<span class="text-xs text-gray-500">(изменено)</span>' : ''}
+                            </div>
+                            <span class="text-xs text-gray-500">${c.date}</span>
+                        </div>
+                        <p class="text-gray-300 mb-2">${c.text}</p>
+                        <div class="flex items-center gap-4">
+                            <button onclick="toggleLike('${type}', ${itemId}, ${index})" class="like-btn flex items-center gap-1 text-sm ${isLiked ? 'liked' : 'text-gray-400 hover:text-red-400'}">
+                                <svg class="w-5 h-5" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                                <span>${c.likes || 0}</span>
+                            </button>
+                            ${isOwner || isAdmin ? `
+                                <button onclick="openUserEditCommentModal('${type}', ${itemId}, ${index})" class="text-sm text-gray-400 hover:text-gkx-green">✏️</button>
+                                <button onclick="confirmUserDeleteComment('${type}', ${itemId}, ${index})" class="text-sm text-gray-400 hover:text-red-500">🗑️</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // === ЛАЙКИ ===
+        function toggleLike(type, itemId, commentIndex) {
+            if (!currentUser) {
+                alert('Войдите, чтобы лайкать комментарии!');
+                openModal('login');
+                return;
+            }
+            
+            const collection = type === 'news' ? news : matches;
+            const item = collection.find(x => x.id === itemId);
+            if (!item || !item.comments[commentIndex]) return;
+            
+            const likeKey = `${type}-${itemId}-${commentIndex}`;
+            const comment = item.comments[commentIndex];
+            
+            if (userLikes[likeKey]) {
+                userLikes[likeKey] = false;
+                comment.likes = (comment.likes || 1) - 1;
+            } else {
+                userLikes[likeKey] = true;
+                comment.likes = (comment.likes || 0) + 1;
+            }
+            
+            saveData();
+            
+            if (type === 'news') {
+                openNewsModal(itemId);
+            } else {
+                openMatchModal(itemId);
+            }
+        }
+
+        // === РЕДАКТИРОВАНИЕ КОММЕНТАРИЯ (ПОЛЬЗОВАТЕЛЬ) ===
+        function openUserEditCommentModal(type, itemId, commentIndex) {
+            const collection = type === 'news' ? news : matches;
+            const item = collection.find(x => x.id === itemId);
+            if (!item || !item.comments[commentIndex]) return;
+            
+            const comment = item.comments[commentIndex];
+            document.getElementById('edit-c-id').value = commentIndex;
+            document.getElementById('edit-c-type').value = type;
+            document.getElementById('edit-c-item-id').value = itemId;
+            document.getElementById('edit-c-text').value = comment.text;
+            
+            openModal('edit-comment');
+        }
+
+        // === УДАЛЕНИЕ КОММЕНТАРИЯ (ПОЛЬЗОВАТЕЛЬ) ===
+        function confirmUserDeleteComment(type, itemId, commentIndex) {
+            const modal = document.getElementById('modal-confirm');
+            const message = document.getElementById('confirm-message');
+            const yesBtn = document.getElementById('confirm-yes');
+            
+            message.textContent = 'Вы уверены, что хотите удалить свой комментарий?';
+            
+            confirmCallback = () => {
+                const collection = type === 'news' ? news : matches;
+                const item = collection.find(x => x.id === itemId);
+                if (item && item.comments[commentIndex]) {
+                    item.comments.splice(commentIndex, 1);
+                    saveData();
+                    
+                    if (type === 'news') {
+                        openNewsModal(itemId);
+                    } else {
+                        openMatchModal(itemId);
+                    }
+                }
+                closeModal('confirm');
+            };
+            
+            yesBtn.onclick = confirmCallback;
+            openModal('confirm');
+        }
+
+        // === КОММЕНТАРИИ ===
+        function addComment(type, id, form) {
+            if (!currentUser) {
+                alert('Сначала войдите!');
+                return;
+            }
+            const text = form.querySelector('input[name="text"]').value;
+            const collection = type === 'news' ? news : matches;
+            const item = collection.find(x => x.id === id);
+            
+            if (item) {
+                item.comments.push({
+                    nick: currentUser.nick,
+                    avatar: currentUser.avatar,
+                    text: text,
+                    date: new Date().toLocaleString('ru-RU'),
+                    likes: 0,
+                    edited: false
+                });
+                saveData();
+                if (type === 'news') {
+                    renderAllNews();
+                    renderHomeNews();
+                    openNewsModal(id);
+                } else {
+                    renderAllMatches();
+                    renderHomeMatches();
+                    openMatchModal(id);
+                }
+            }
+        }
+
+        // === АВТОРИЗАЦИЯ ===
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nick = document.getElementById('auth-nick').value.trim();
+            const email = document.getElementById('auth-email').value.trim();
+            const phone = document.getElementById('auth-phone').value.trim();
+            const avatar = document.getElementById('auth-avatar').value.trim() || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+            
+            let user = users.find(u => u.nick.toLowerCase() === nick.toLowerCase());
+            
+            const isAleks = nick.toLowerCase() === 'aleks';
+            
+            if (!user) {
+                user = {
+                    id: Date.now(),
+                    nick: nick,
+                    email: email,
+                    phone: phone,
+                    avatar: avatar,
+                    isAdmin: isAleks,
+                    registeredAt: new Date().toISOString().split('T')[0]
+                };
+                users.push(user);
+            } else if (isAleks && !user.isAdmin) {
+                user.isAdmin = true;
+            }
+            
+            if (email) user.email = email;
+            if (phone) user.phone = phone;
+            if (avatar) user.avatar = avatar;
+            
+            currentUser = { id: user.id, nick: user.nick, avatar: user.avatar };
+            saveData();
+            updateUserPanel();
+            updateAdminNavLink();
+            closeModal('login');
+            
+            if (isAleks) {
+                alert(`Добро пожаловать, ${nick}! 🎉\nВам автоматически присвоены права АДМИНИСТРАТОРА!`);
+            } else {
+                alert(`Добро пожаловать, ${nick}!`);
+            }
+        });
+
+        function updateUserPanel() {
+            const panel = document.getElementById('user-panel');
+            if (currentUser) {
+                panel.innerHTML = `
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="logout()">
+                        <span class="text-sm font-bold text-gray-300 hidden md:block">${currentUser.nick}</span>
+                        <img src="${currentUser.avatar}" class="w-10 h-10 rounded-full border-2 border-gkx-green">
+                    </div>
+                `;
+            } else {
+                panel.innerHTML = '<button onclick="openModal(\'login\')" class="bg-gkx-green text-gkx-black px-5 py-2 rounded font-bold hover:bg-white transition">Войти</button>';
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('gkx_currentUser');
+            updateUserPanel();
+            updateAdminNavLink();
+            showSection('home');
+        }
+
+        // === АДМИНКА: ДОБАВЛЕНИЕ МАТЧА ===
+        document.getElementById('add-match-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newMatch = {
+                id: Date.now(),
+                league: document.getElementById('m-league').value,
+                date: document.getElementById('m-date').value,
+                home: document.getElementById('m-home').value,
+                away: document.getElementById('m-away').value,
+                score: document.getElementById('m-score').value || '-',
+                status: document.getElementById('m-status').value,
+                homeLineup: document.getElementById('m-home-lineup').value,
+                awayLineup: document.getElementById('m-away-lineup').value,
+                homePossession: document.getElementById('m-home-possession').value || null,
+                awayPossession: document.getElementById('m-away-possession').value || null,
+                homeShots: document.getElementById('m-home-shots').value || null,
+                awayShots: document.getElementById('m-away-shots').value || null,
+                homeCorners: document.getElementById('m-home-corners').value || null,
+                awayCorners: document.getElementById('m-away-possession').value || null,
+                comments: []
+            };
+            matches.unshift(newMatch);
+            saveData();
+            renderAdminMatches();
+            renderAll();
+            e.target.reset();
+            alert('Матч добавлен!');
+        });
+
+        // === АДМИНКА: ЗАГРУЗКА ИЗОБРАЖЕНИЯ ===
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempImageData = e.target.result;
+                    document.getElementById('image-preview').querySelector('img').src = tempImageData;
+                    document.getElementById('image-preview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // === АДМИНКА: ДОБАВЛЕНИЕ НОВОСТИ ===
+        document.getElementById('add-news-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newNews = {
+                id: Date.now(),
+                title: document.getElementById('n-title').value,
+                content: document.getElementById('n-content').value,
+                image: tempImageData || document.getElementById('n-image-url').value || 'https://via.placeholder.com/800x400',
+                date: new Date().toISOString().split('T')[0],
+                comments: []
+            };
+            news.unshift(newNews);
+            saveData();
+            renderAdminNews();
+            renderAll();
+            e.target.reset();
+            document.getElementById('image-preview').classList.add('hidden');
+            tempImageData = null;
+            alert('Новость опубликована!');
+        });
+
+        // === АДМИНКА: УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ ===
+        function toggleAdminRole(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                user.isAdmin = !user.isAdmin;
+                saveData();
+                renderUsersTable();
+            }
+        }
+
+        // Запуск
+        init();
+    </script>
+</body>
+</html>
